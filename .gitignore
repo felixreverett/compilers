@@ -1,0 +1,6 @@
+.vscode
+.metals
+
+# Java
+*.class
+*.LCKScanner.java~
