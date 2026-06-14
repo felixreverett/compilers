@@ -97,6 +97,22 @@ class Scanner {
       case '/':
         if (match('/')) {
           while (peek() != '\n' && !isAtEnd()) advance();
+        } else if (match('*')) {
+          while (!isAtEnd()) {
+            if (peek() == '\n') {
+              line++;
+            } else if (peek() == '*' && peekNext() == '/') {
+              break;
+            }
+            advance();
+          }
+          // Check to ensure not EOF after exiting multi-line comment
+          if (isAtEnd()) {
+            Lox.error(line, "Unterminated comment.");
+            return;
+          } else {
+            advance(); advance();
+          }
         } else {
           addToken(SLASH);
         }
