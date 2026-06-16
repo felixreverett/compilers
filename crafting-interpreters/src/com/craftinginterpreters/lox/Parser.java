@@ -37,7 +37,25 @@ class Parser {
   }
 
   private Expr expression() {
-      return equality();
+      return ternary();
+  }
+
+  private Expr ternary() {
+    Expr expr = equality();
+
+    if (match(QUESTION)) {
+      // middle branch can be any expression
+      Expr thenBranch = expression();
+
+      consume(COLON, "Expect ':' after then branch of ternary operator.");
+
+      // right branch calls ternary() for right-associativity
+      Expr elseBranch = ternary();
+
+      expr = new Expr.Ternary(expr, thenBranch, elseBranch);
+    }
+
+    return expr;
   }
 
   private Expr equality() {
@@ -110,6 +128,34 @@ class Parser {
   }
 
   private Expr primary() {
+
+    // === Catch productions of binary operators missing left operand
+    if (match(BANG_EQUAL, EQUAL_EQUAL)) {
+      Token operator = previous();
+      equality();
+      throw error(operator, "Missing left-hand operand.");
+    }
+
+    if (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+      Token operator = previous();
+      comparison();
+      throw error(operator, "Missing left-hand operand.");
+    }
+
+    if (match(PLUS)) {
+      Token operator = previous();
+      term();
+      throw error(operator, "Missing left-hand operand.");
+    }
+
+    if (match(SLASH, STAR)) {
+      Token operator = previous();
+      factor();
+      throw error(operator, "Missing left-hand operand.");
+    }
+
+    // === End catch
+
     if (match(FALSE)) return new Expr.Literal(false);
     if (match(TRUE)) return new Expr.Literal(true);
     if (match(NIL)) return new Expr.Literal(null);
