@@ -10,7 +10,12 @@ import java.util.List;
 
 public class Lox {
 
+  // Making it static allows for variables to persist
+  // between cycles of a REPL session!
+  private static final Interpreter interpreter = new Interpreter();
+
   static boolean hadError = false;
+  static boolean hadRuntimeError = false;
 
   public static void main(String[] args) throws IOException {
     if (args.length > 1) {
@@ -28,8 +33,10 @@ public class Lox {
     byte[] bytes = Files.readAllBytes(Paths.get(path));
     run(new String(bytes, Charset.defaultCharset()));
 
-    // abort is error found after run()
+    // abort if error found after run()
     if (hadError) System.exit(65);
+    // abort if error found in runtime (shell etiquette)
+    if (hadRuntimeError) System.exit(70);
   }
 
   // Interactive reader (REPL)
@@ -57,7 +64,7 @@ public class Lox {
 
     if (hadError) return;
 
-    System.out.println(new AstPrinter().print(expression));
+    interpreter.interpret(expression);
   }
 
   // Helps tell the user some syntax error occurred on a given line
@@ -76,5 +83,11 @@ public class Lox {
     } else {
       report(token.line, "at '" + token.lexeme + "'", message);
     }
+  }
+
+  static void runtimeError(RuntimeError error) {
+    System.err.println(error.getMessage() +
+      "\n[line " + error.token.line + "]");
+    hadRuntimeError = true;
   }
 }
