@@ -1,14 +1,23 @@
 # Crafting Interpreters
 
-My code for the crafting interpreters compiler implementation book
+My code for the crafting interpreters compiler implementation book. The book is [freely available online](https://craftinginterpreters.com/contents.html) and guides you through the process of creating both an interpreter in Java and a full bytecode virtual machine in C.
 
-## Build instructions
+## 1 Command Line Build Instructions
 
-Change directory to source:
-`cd crafting-interpreters/src`
+Ensure your current directory is set to crafting-interpreters/
 
-Compile entire package:
-`javac com/craftinginterpreters/lox/*.java`
+`cd crafting-interpreters`
+
+If it doesn't exist, create the `Expr.java` file by compiling and executing the GenerateAst script:
+
+`javac -d bin com/craftinginterpreters/tool/GenerateAst.java`
+
+`java -cp bin com.craftinginterpreters/tool/GenerateAst com/craftinginterpreters/lox`
+
+Next, compile all files into bin using the directory flag -d:
+
+`javac -d bin com/craftinginterpreters/lox/*.java`
 
 Run REPL:
-`java com.craftinginterpreters.lox.Lox`
+
+`java -d bin com.craftinginterpreters.lox.Lox`
