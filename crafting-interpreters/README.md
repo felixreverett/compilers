@@ -10,14 +10,14 @@ Ensure your current directory is set to crafting-interpreters/
 
 If it doesn't exist, create the `Expr.java` file by compiling and executing the GenerateAst script:
 
-`javac -d bin com/craftinginterpreters/tool/GenerateAst.java`
+`javac -d bin src/com/craftinginterpreters/tool/GenerateAst.java`
 
-`java -cp bin com.craftinginterpreters/tool/GenerateAst com/craftinginterpreters/lox`
+`java -cp bin com.craftinginterpreters.tool.GenerateAst com/craftinginterpreters/lox`
 
 Next, compile all files into bin using the directory flag -d:
 
-`javac -d bin com/craftinginterpreters/lox/*.java`
+`javac -d bin src/com/craftinginterpreters/lox/*.java`
 
 Run REPL:
 
-`java -d bin com.craftinginterpreters.lox.Lox`
+`java -cp bin com.craftinginterpreters.lox.Lox`
