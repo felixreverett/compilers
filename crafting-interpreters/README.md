@@ -12,7 +12,7 @@ If it doesn't exist, create the `Expr.java` file by compiling and executing the 
 
 `javac -d bin src/com/craftinginterpreters/tool/GenerateAst.java`
 
-`java -cp bin com.craftinginterpreters.tool.GenerateAst com/craftinginterpreters/lox`
+`java -cp bin com.craftinginterpreters.tool.GenerateAst src/com/craftinginterpreters/lox`
 
 Next, compile all files into bin using the directory flag -d:
 
