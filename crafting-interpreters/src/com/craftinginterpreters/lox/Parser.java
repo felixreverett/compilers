@@ -1,6 +1,7 @@
 package com.craftinginterpreters.lox;
 
 import static com.craftinginterpreters.lox.TokenType.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /* (From Crafting Interpreters, 2021)
@@ -28,16 +29,103 @@ class Parser {
     this.tokens = tokens;
   }
 
-  Expr parse() {
+  List<Stmt> parse() {
+    List<Stmt> statements = new ArrayList<>();
+    while (!isAtEnd()) {
+      statements.add(declaration());
+    }
+
+    return statements;
+  }
+
+  // ===== Statements  =====
+
+  private Stmt statement() {
+    if (match(PRINT)) return printStatement();
+
+    return expressionStatement();
+  }
+
+  private Stmt printStatement() {
+
+    Expr value = expression();
+
+    consume(SEMICOLON, "Expect ';' after value.");
+
+    return new Stmt.Print(value);
+  }
+
+  private Stmt expressionStatement() {
+
+    Expr expr = expression();
+
+    consume(SEMICOLON, "Expect ';' after expression.");
+
+    return new Stmt.Expression(expr);
+  }
+
+  private List<Stmt> block() {
+    List<Stmt> statements = new ArrayList<>();
+
+    while (!check(RIGHT_BRACE) && !isAtEnd()) {
+      statements.add(declaration());
+    }
+
+    consume(RIGHT_BRACE, "Except '}' after block.");
+
+    return statements;
+  }
+
+  private Expr assignment() {
+    Expr expr = equality();
+
+    if (match(EQUAL)) {
+      Token equals = previous();
+      Expr value = assignment();
+      
+       if (expr instanceof Expr.Variable) {
+        Token name = ((Expr.Variable)expr).name;
+        return new Expr.Assign(name, value);
+       }
+
+       error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+  }
+
+  private Stmt declaration() {
     try {
-      return expression();
+      if (match(VAR)) return varDeclaration();
+      
+      return statement();
     } catch (ParseError error) {
+      synchronise();
       return null;
     }
   }
 
+  // if 'var' is found, we must be declaring a new variable
+  private Stmt varDeclaration() {
+    Token name = consume(IDENTIFIER, "Expect variable name.");
+
+    // Set variable's value to null (it might not be initialised)
+    Expr initialiser = null;
+
+    if (match(EQUAL)) {
+      initialiser = expression();
+    }
+
+    consume(SEMICOLON, "Expect ';' after variable declaration.");
+    return new Stmt.Var(name, initialiser);
+  }
+
+  // =======================
+
+  // ===== Expressions =====
+
   private Expr expression() {
-      return ternary();
+      return assignment();
   }
 
   private Expr ternary() {
@@ -164,6 +252,10 @@ class Parser {
       return new Expr.Literal(previous().literal);
     }
 
+    if (match (IDENTIFIER)) {
+      return new Expr.Variable(previous());
+    }
+
     if (match(LEFT_PAREN)) {
       Expr expr = expression();
       consume(RIGHT_PAREN, "Expect ')' after expression.");
@@ -172,6 +264,8 @@ class Parser {
 
     throw error(peek(), "Expect expression.");
   }
+
+  // =======================
 
   // Helper methods
 
