@@ -8,7 +8,7 @@ Ensure your current directory is set to crafting-interpreters/
 
 `cd crafting-interpreters`
 
-If it doesn't exist, create the `Expr.java` file by compiling and executing the GenerateAst script:
+If it doesn't exist, create the `Expr.java` file by compiling and executing the GenerateAst script (or alternatively executing `./gen_ast.bat` if you are on Windows):
 
 `javac -d bin src/com/craftinginterpreters/tool/GenerateAst.java`
 
